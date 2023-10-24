@@ -3,8 +3,9 @@ import json
 import csv
 import requests
 import time
+from decouple import config
 
-api_key = "8g9twk5h7n5u4wzmfhckps69"
+api_key = config('API_KEY')
 
 # Define the API endpoints
 team_info_endpoint = "https://api.sportradar.us/soccer-extended/trial/v4/en/seasons/sr:season:101055/info.json"
