@@ -6,6 +6,7 @@ import time
 from decouple import config
 
 api_key = config('API_KEY')
+sportsDataIO_key = config('SPORTSDATA.IO_KEY')
 
 # Define the API endpoints
 team_info_endpoint = "https://api.sportradar.us/soccer-extended/trial/v4/en/seasons/sr:season:101055/info.json"
@@ -38,10 +39,47 @@ for team in team_list:
 
 # Processing player data for entire league
 
-# Create dictionary to store general player data
+# Create list to store general player data
 player_data = []
 competitor_profile_data = ''
 teamName = ""
+
+# Create an empty dictionary to store player active dates for entire league that we can quickly access later
+activeDate = {}
+
+""" Retrieving sportsdata.io data which contains information about player active date. This code is placed before the for
+loop because 1 call will retrieve data for the entire league. An individual call by team is not required"""
+# API call
+active_date_url = 'https://api.sportsdata.io/v4/soccer/scores/json/ActiveMemberships/MLS'
+
+# Making API call
+response5 = requests.get(active_date_url, params={"key": sportsDataIO_key})
+response5.raise_for_status()
+
+# Process the response
+player_activeDate = response5.json()
+
+for player in player_activeDate:
+    print(player)
+    name = player['PlayerName'].split()
+    if len(name) >= 2:
+        name = name[1]
+    else:
+        name = "N/A"
+    #print(name + "  " + str(player['Jersey']) + "  Active Date: " + str(player['StartDate']))
+    activeDate[(name, player['TeamName'])] = str(player['StartDate'])
+    #print(name + " " + str(player['Jersey']))
+
+    #time.sleep(20)
+
+"""for value in activeDate.keys():
+    print(value)
+
+print("Value for Herbers is: " + activeDate[('Herbers', '24')])
+
+time.sleep(20)"""
+
+print(player_activeDate)
 
 for teamid in team_data:
 
@@ -82,6 +120,7 @@ for teamid in team_data:
         # Traversing through list of players
         for player in competitor_profile_data['players']:
             # Splitting name into parts and only using the last name
+            player_id = player.get('id', 'N/A')
             name_parts = player['name'].split()
             name = name_parts[0].rstrip(', ')
             jersey_number = player.get('jersey_number', 'N/A')
@@ -127,13 +166,21 @@ for teamid in team_data:
                 'Yellow Cards': yellow_cards,
                 'Red Cards': red_cards,
                 'Dribbles Completed': dribbles_completed,
-                'Shots on Target': shots_on_target,
-
+                'Shots on Target': shots_on_target
             }
 
+            # Appending active dates
+            key = (name, teamName)
+            if key in activeDate:
+                player['Active Date'] = activeDate[key]
+                print("Found player in active date")
+            else:
+                player['Active Date'] = 'N/A'
+                print("Data for " + name + "is not found.")
+
             # Keeping track and letter and jersey number counts
-            letter_count = [0] * 26 # A-Z
-            number_count = [0] * 10 # 0-9
+            letter_count = [0] * 26  # A-Z
+            number_count = [0] * 10  # 0-9
 
             # Increment the letter count
             for letter in name:
@@ -159,6 +206,7 @@ for teamid in team_data:
                     count = ''
                 player[f'{number}'] = count
 
+
             player_data.append(player)
 
     except requests.exceptions.RequestException as e:
@@ -179,3 +227,6 @@ with open('roster_data.csv', 'w', newline='') as csvfile:
         writer.writerow(player)
 
 print("CSV writing complete.")
+
+
+#https://api.sportradar.us/soccer-extended/trial/v4/en/players/sr:player:48978/profile.json
