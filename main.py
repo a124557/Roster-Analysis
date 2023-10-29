@@ -4,6 +4,8 @@ import csv
 import requests
 import time
 from decouple import config
+from datetime import datetime
+from unidecode import unidecode
 
 api_key = config('API_KEY')
 sportsDataIO_key = config('SPORTSDATA.IO_KEY')
@@ -63,11 +65,11 @@ for player in player_activeDate:
     print(player)
     name = player['PlayerName'].split()
     if len(name) >= 2:
-        name = name[1]
+        accentName = name[1]
     else:
-        name = "N/A"
+        accentName = "N/A"
     #print(name + "  " + str(player['Jersey']) + "  Active Date: " + str(player['StartDate']))
-    activeDate[(name, player['TeamName'])] = str(player['StartDate'])
+    activeDate[unidecode(accentName)] = [datetime.fromisoformat(player['StartDate']).strftime('%Y-%m-%d'), accentName]
     #print(name + " " + str(player['Jersey']))
 
     #time.sleep(20)
@@ -169,10 +171,11 @@ for teamid in team_data:
                 'Shots on Target': shots_on_target
             }
 
-            # Appending active dates
-            key = (name, teamName)
+            # Appending active dates and proper last name with accents from other data source
+            key = name
             if key in activeDate:
-                player['Active Date'] = activeDate[key]
+                player['Active Date'] = activeDate[key][0]
+                player['Last Name'] = activeDate[key][1]
                 print("Found player in active date")
             else:
                 player['Active Date'] = 'N/A'
@@ -212,6 +215,18 @@ for teamid in team_data:
     except requests.exceptions.RequestException as e:
         print("An error occurred:", str(e))
         
+# Writing current player data to text file in JSON format to compare later
+
+# Get the current date in YYYYMMDD format
+current_date = datetime.now().strftime("%Y%m%d")
+
+# Define the file name format
+file_name = f"{current_date} – MLS – APICALL.txt"
+
+# Open a file for writing
+with open(file_name, "w") as file:
+    # Convert the dictionary to a JSON string and write it to the file
+    json.dump(player_data, file)
 
 # Creating CSV for export
 title = ['MLS - Toronto FC']
