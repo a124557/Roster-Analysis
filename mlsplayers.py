@@ -91,7 +91,10 @@ if old_data_list is None:
         # Splitting name into parts and only using the last name
         player_id = player.get('PlayerId', 'N/A')
         name_parts = player['Name'].split()
-        name = name_parts[0].rstrip(', ')
+        if len(name_parts) > 1:
+            name = name_parts[1].rstrip(' ')
+        else:
+            name = name_parts[0]
         team = player.get('Team', 'N/A')
         try:
             jersey_number = activeDate[player_id][1]
@@ -134,7 +137,8 @@ if old_data_list is None:
             'Red Cards': red_cards,
             'Tackles Won': tacklesWon,
             'Shots on Target': shots_on_target,
-            'Player ID': player_id
+            'Player ID': player_id,
+            'Popularity Score': int(goals_scored + assists + (yellow_cards * -1) + (red_cards * -2))
         }
 
         # Appending active dates and proper last name with accents from other data source
@@ -185,7 +189,6 @@ if old_data_list is None:
 
 else:
     print("Found harvested API data that is from today. Using it to create the outputs.")
-    time.sleep(2)
     player_data = old_data_list
 
 

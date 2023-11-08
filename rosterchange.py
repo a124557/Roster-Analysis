@@ -10,8 +10,8 @@ def load_data(file_path):
 
 
 # Load data from the latest and chosen date files
-latest_data = load_data('20231030 – MLS – APICALL.txt')
-chosen_date_data = load_data('20231029 – MLS – APICALL.txt')
+latest_data = load_data('20231101 – MLS – APICALL.txt')
+chosen_date_data = load_data('20231030 – MLS – APICALL.txt')
 
 # Identify common players based on 'Player ID'
 common_players = [player for player in latest_data if
