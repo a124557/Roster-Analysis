@@ -1,5 +1,7 @@
 import json
 import csv
+import os
+from datetime import datetime
 
 
 # Load data from the latest and chosen date text files
@@ -7,6 +9,17 @@ def load_data(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
     return data
+
+# Function extracting date from file names
+def extract_date_from_file(filename):
+    try:
+        # Extract date part of filename
+        date_str = filename.split(' - ')[0]
+        # Converting the date string to datetime object
+        return datetime.strptime(date_str, "%Y%,%d")
+    except ValueError:
+        # Handling case where filename doesn't follow expected format
+        return None
 
 
 # Load data from the latest and chosen date files
