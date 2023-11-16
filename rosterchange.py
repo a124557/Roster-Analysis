@@ -10,8 +10,8 @@ def load_data(file_path):
 
 
 # Load data from the latest and chosen date files
-latest_data = load_data('20231101 – MLS – APICALL.txt')
-chosen_date_data = load_data('20231030 – MLS – APICALL.txt')
+latest_data = load_data('20231115 – MLS – APICALL.txt')
+chosen_date_data = load_data('20231029 – MLS – APICALL.txt')
 
 # Identify common players based on 'Player ID'
 common_players = [player for player in latest_data if
@@ -53,8 +53,11 @@ for player in common_players:
                               str(latest_player['Jersey Number']))"""
     # Repeat for other fields of interest
     for key, value in latest_player.items():
-        if latest_player[key] != chosen_date_player[key]:
-            player_changes.append(key + ": " + str(chosen_date_player[key]) + "--> " + str(latest_player[key]))
+        try:
+            if latest_player[key] != chosen_date_player[key]:
+                player_changes.append(key + ": " + str(chosen_date_player[key]) + "--> " + str(latest_player[key]))
+        except KeyError:
+            print('A key was found that is not present in both files.')
 
     if len(player_changes) != 0:
         # Create a string with all changes for this player
