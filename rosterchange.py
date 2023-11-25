@@ -2,6 +2,7 @@ import json
 import csv
 import os
 from datetime import datetime
+import re
 
 
 # Load data from the latest and chosen date text files
@@ -10,21 +11,49 @@ def load_data(file_path):
         data = json.load(file)
     return data
 
-# Function extracting date from file names
-def extract_date_from_file(filename):
+# Function to extract date from the file name
+def extract_date_from_filename(filename):
     try:
-        # Extract date part of filename
-        date_str = filename.split(' - ')[0]
-        # Converting the date string to datetime object
-        return datetime.strptime(date_str, "%Y%,%d")
+        # Extracting the date part of the filename
+        date_str = filename.split(' – ')[0]
+        # Converting the date string to a datetime object
+        return datetime.strptime(date_str, "%Y%m%d")
     except ValueError:
-        # Handling case where filename doesn't follow expected format
+        # Handle the case where the filename doesn't follow the expected format
         return None
 
+# Get user input for two dates
+user_input_date1 = input("Enter the first date (YYYYMMDD): ")
+user_input_date2 = input("Enter the second date (YYYYMMDD): ")
+
+# Convert user input to datetime objects
+chosen_date1 = datetime.strptime(user_input_date1, "%Y%m%d")
+chosen_date2 = datetime.strptime(user_input_date2, "%Y%m%d")
+
+# Compare the two dates
+latest_chosen_date = max(chosen_date1, chosen_date2)
+oldest_chosen_date = min(chosen_date1, chosen_date2)
+
+# Get a list of files in the directory
+files_in_directory = os.listdir()
+
+# Extract dates from filenames and filter out None values
+valid_files = [(filename, extract_date_from_filename(filename)) for filename in files_in_directory if " – " in filename]
+valid_files = [(filename, date) for filename, date in valid_files if date is not None]
+
+# Sort the files based on the extracted dates
+valid_files.sort(key=lambda x: x[1])
+
+# Get the latest date and the corresponding file name
+latest_date, latest_filename = valid_files[-1]
+
+# Print the latest date and filename
+print("Latest Chosen Date: ", latest_chosen_date.strftime("%Y%m%d"))
+print("Oldest Chosen Date:", oldest_chosen_date.strftime("%Y%m%d"))
 
 # Load data from the latest and chosen date files
-latest_data = load_data('20231124 – MLS – APICALL.txt')
-chosen_date_data = load_data('20231120 – MLS – APICALL.txt')
+latest_data = load_data(latest_chosen_date.strftime("%Y%m%d") + ' – MLS – APICALL.txt')
+chosen_date_data = load_data( oldest_chosen_date.strftime("%Y%m%d") + ' – MLS – APICALL.txt')
 
 # Identify common players based on 'Player ID'
 common_players = [player for player in latest_data if
