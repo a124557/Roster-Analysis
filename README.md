@@ -6,10 +6,10 @@ learning purposes only free sources of information were used. The script will ou
 all player data into a CSV file with several metrics pertaining to player performance
 such as goals, assists, yellow/red cards, etcetera.
 
-The 'rosterchange.py' script outputs a CSV file containing information outlining all
-changes in roster data between two dates. This is done using the data saved by the 
+The 'rosterchange.py' script outputs a CSV file containing information about all
+changes in roster data between two dates chosen by the user. This is done using the data saved by the 
 'mlsplayers.py' script locally. 
 
 'predict-popularity.py' is a script that using a machine learning linear regression model to
 predict the 'Player Popularity' score based on features that are put into the model which are
-goals, assists, yellow/red cards.
+goals, assists, and yellow/red cards.
